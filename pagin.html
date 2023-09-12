@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+</head>
+
+<body>
+    <div id="Botones">
+    </div>
+    <nav>
+        <div>
+            <a  href="#" onclick="prev()">Anterior</a>
+            <h3 id="nums"></h3>
+            <a  href="#" onclick="next()">Next</a>
+        </div>
+    </nav>
+
+            <div id="conte">
+
+            </div>
+
+    <script>
+        $(document).ready(function () {
+            inicio_pag = 1;
+            pag = 1;
+            cargar();
+            generos();
+        })
+        function cargar(pagina, url) {
+            url = "https://api.themoviedb.org/3/discover/movie?api_key=4b8e64359890912cf490900885979985&page=" + pag;
+            $.ajax({
+                url: pagina,
+                type: "GET",
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    str = ""
+                    str += "<div class='contenedor'>";
+                    for (i = 0; i < data.results.length; i++) {
+                        str += "<div class = 'card'>"
+                        str += "<h2>" + data.results[i].original_title + "</h2>";
+                        str += "<img src = '" + "https://image.tmdb.org/t/p/w200" + data.results[i].poster_path + "'>";
+                        str += "<div>" + "<div>" + "<p> Puntuacion: " + data.results[i].vote_average + "<p>" + "</div>" + "</div>";
+                        str += "<div>" + "<div>" + "<p>" + data.results[i].overview + "<p>" + "</div>" + "</div>";
+                        str += "</div>"
+                    }
+                    str += "</div>"
+                    $("#conte").html(str);
+                    paginador();
+                }
+            })
+        }
+
+        function generos() {
+            $.ajax({
+                url: "https://api.themoviedb.org/3/genre/movie/list?api_key=4b8e64359890912cf490900885979985",
+                type: 'GET',
+                dataType: 'json',
+                async: false,
+                success: function (data) {
+                    str2 = "";
+                    str2 += "<div class='botones'>"
+                    for (i = 0; i < data.genres.length; i++) {
+                        str2 += `<button id="boton${i}" onclick="cargar('https://api.themoviedb.org/3/discover/movie?api_key=4b8e64359890912cf490900885979985&with_genres=${data.genres[i].id}', '${data.genres[i].name}')">${data.genres[i].name}</button>`;
+                    }
+                    str2 += "</div>"
+                    $("#Botones").html(str2);
+                }
+            });
+        };
+
+
+        function paginador() {
+            str = "";
+            for (i = inicio_pag; i <= (6 + inicio_pag); i++) {
+                str += "<li ><a  href='#' onclick='pag_directa(" + i + ")' id='" + i + "'>" + i + "</a></li>"
+            }
+            $("#nums").html(str)
+
+        }
+
+        function prev() {
+            if (pag <= 1) {
+                return;
+            }
+            --pag
+            --inicio_pag;
+            cargar()
+        }
+        function next() {
+            if (pag >= 100) {
+                return;
+            }
+            ++pag
+            ++inicio_pag;
+            cargar()
+        }
+        function pag_directa(id) {
+            inicio_pag = id
+            pag = id
+            cargar()
+        }
+    </script>
+</body>
+
+</html>
